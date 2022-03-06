@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -21,7 +22,6 @@ var (
 
 func init() {
 	flag.StringVar(&url, "url", "https://www.vodnisvetkolin.cz/", "URL")
-	flag.Parse()
 
 	occupancyRegexp = regexp.MustCompile(`<div class="bubble">\s*<div class="value">\s+(\d+)\s+</div>`)
 	visitedTodayRegexp = regexp.MustCompile(`<div class="desc">\s*dnes v aquaparku:\s*</div>\s*<div class="value">\s*(\d+)\s*</div>`)
@@ -46,46 +46,56 @@ func ReadStatistics() (VodniSvetKolin, error) {
 	page, err := loadPage()
 
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		return VodniSvetKolin{}, err
 	}
 
 	occupancy, err := findUint32(page, occupancyRegexp)
 
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		return VodniSvetKolin{}, err
 	}
 
 	visitedToday, err := findUint32(page, visitedTodayRegexp)
 
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		return VodniSvetKolin{}, err
 	}
 
 	visitedThisWeek, err := findUint32(page, visitedThisWeekRegexp)
 
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		return VodniSvetKolin{}, err
 	}
 
 	visitedThisMonth, err := findUint32(page, visitedThisMonthRegexp)
 
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		return VodniSvetKolin{}, err
 	}
 
 	visitedThisYear, err := findUint32(page, visitedThisYearRegexp)
 
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		return VodniSvetKolin{}, err
 	}
 
-	return VodniSvetKolin{
+	result := VodniSvetKolin{
 		Occupancy:        uint16(occupancy),
 		VisitedToday:     uint32(visitedToday),
 		VisitedThisWeek:  uint32(visitedThisWeek),
 		VisitedThisMonth: uint32(visitedThisMonth),
 		VisitedThisYear:  uint32(visitedThisYear),
-	}, nil
+	}
+
+	log.Printf("%s", result)
+
+	return result, nil
 }
 
 func loadPage() (string, error) {
