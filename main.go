@@ -23,9 +23,9 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", VodniSvetKolinMetricsHandler)
 
+	log.Printf("Server starting on port %d", port)
+
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux); err != nil {
 		log.Fatalf("Could not start server: %s\n", err.Error())
 	}
-
-	log.Printf("Server started on port %d", port)
 }
